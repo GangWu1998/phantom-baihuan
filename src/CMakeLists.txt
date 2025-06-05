@@ -34,6 +34,20 @@ add_library(Phantom SHARED
         host/uintarith.cu
         host/uintarithmod.cu
         host/uintarithsmallmod.cu
+
+        boot/Bootstrapper.cu
+        boot/ckks_evaluator.cu
+        boot/ModularReducer.cu
+        boot/common/Choosemax.cu
+        boot/common/MinicompFunc.cu
+        boot/common/MinicompRemez.cu
+        boot/common/Point.cu
+        boot/common/PolyUpdate.cu
+        boot/common/Polynomial.cu
+        boot/common/Remez.cu
+        boot/common/RemezApp.cu
+        boot/common/func.cu
+
 )
 
 target_compile_options(Phantom PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--default-stream per-thread>)
