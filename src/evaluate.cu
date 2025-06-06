@@ -1666,6 +1666,19 @@ Returns (f, e1, e2) such that
                         const PhantomGaloisKey &galois_key) {
         rotate_internal(context, encrypted, step, galois_key);
     }
+    
+    // newly add
+    void complex_conjugate_inplace(const PhantomContext &context, PhantomCiphertext &encrypted,
+                                const PhantomGaloisKey &galois_key,
+                                const phantom::util::cuda_stream_wrapper &stream_wrapper)
+    {
+        if (context.key_context_data().parms().scheme() != phantom::scheme_type::ckks)
+        {
+            throw std::logic_error("unsupported scheme");
+        }
+        auto &key_galois_tool = context.key_galois_tool_;
+        apply_galois_inplace(context, encrypted, key_galois_tool->get_elt_from_step(0), galois_key, stream_wrapper);
+    }
 
     void hoisting_inplace(const PhantomContext &context, PhantomCiphertext &ct, const PhantomGaloisKey &glk,
                           const std::vector<int> &steps) {

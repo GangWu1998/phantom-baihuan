@@ -62,6 +62,7 @@ namespace phantom::util {
 
         int coeff_count_power_ = 0;
         std::size_t coeff_count_ = 0;
+        std::vector<size_t> galois_indexs_{};
         std::vector<uint32_t> galois_elts_{};
         std::vector<phantom::util::cuda_auto_ptr<uint32_t>> permutation_tables_;
         std::vector<phantom::util::cuda_auto_ptr<uint64_t>> index_raw_tables_; // only used by bfv
@@ -149,6 +150,27 @@ namespace phantom::util {
             for (auto step: steps)
                 elts.push_back(get_elt_from_step(step, coeff_count_));
             return elts;
+        }
+
+        /**
+        Compute a vector of all necessary galois_elts.
+        */
+        [[nodiscard]] std::vector<uint32_t> get_elts_all() const;
+
+        /**
+        Compute the index in the range of 0 to (coeff_count_ - 1) of a given Galois element.
+        */
+        [[nodiscard]] static std::size_t get_index_from_elt(const uint32_t galois_elt) {
+            return (galois_elt - 1) >> 1;
+        }
+
+        [[nodiscard]] static std::vector<std::size_t>
+         get_indexs_from_elts(const std::vector<uint32_t> &galois_elts) {
+            std::vector<std::size_t> galois_indexs{};
+            for (const uint32_t galois_elt: galois_elts) {
+                galois_indexs.push_back(get_index_from_elt(galois_elt));
+            }
+            return galois_indexs;
         }
 
         void apply_galois(uint64_t *operand, const DNTTTable &rns_table, size_t coeff_mod_size, size_t galois_elt_idx,

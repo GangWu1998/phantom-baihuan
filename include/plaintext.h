@@ -15,6 +15,7 @@ class PhantomPlaintext {
 
 private:
 
+    phantom::parms_id_type parms_id_ = phantom::parms_id_zero;
     std::size_t chain_index_ = 0;
     std::size_t poly_modulus_degree_ = 0;
     size_t coeff_modulus_size_ = 0;
@@ -46,8 +47,29 @@ public:
         chain_index_ = chain_index;
     }
 
+    inline void release() noexcept
+    {
+        if(data_.get() != nullptr)
+        {
+            data_.reset();// Use reset() instead of calling the destructor directly
+        }  
+        parms_id_ = phantom::parms_id_zero;
+        chain_index_ = 0;
+        poly_modulus_degree_ = 0;
+        coeff_modulus_size_ = 0;
+        scale_ = 1.0;    
+    }
+
     [[nodiscard]] std::size_t coeff_count() const noexcept {
         return poly_modulus_degree_ * coeff_modulus_size_;
+    }
+
+    [[nodiscard]] auto &parms_id() const noexcept {
+        return parms_id_;
+    }
+
+    [[nodiscard]] auto &parms_id() noexcept {
+        return parms_id_;
     }
 
     [[nodiscard]] auto &chain_index() const noexcept {
@@ -58,10 +80,18 @@ public:
         return scale_;
     }
 
+    [[nodiscard]] auto &scale() noexcept {
+        return scale_;
+    }
+
     [[nodiscard]] auto data() const noexcept {
         return data_.get();
     }
-
+    
+    [[nodiscard]] auto data(size_t coeff_index) noexcept {
+        return data_.get() + coeff_index;
+    }
+    
     [[nodiscard]] auto &data_ptr() noexcept {
         return data_;
     }

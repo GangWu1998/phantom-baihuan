@@ -125,7 +125,7 @@ namespace phantom
     // Mod switch
     inline void mod_switch_to_next_inplace(PhantomCiphertext &ct)
     {
-      ::mod_switch_to_next_inplace(*context, ct);
+       ::mod_switch_to_next_inplace(*context, ct);
     }
     inline void mod_switch_to_next_inplace(PhantomPlaintext &ct)
     {

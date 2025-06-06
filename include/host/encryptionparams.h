@@ -34,6 +34,16 @@ namespace phantom {
         hps_overq_leveled = 4 // HPS over Q leveled
     };
 
+    /**
+    The data type to store unique identifiers of encryption parameters.
+    */
+    using parms_id_type = util::HashFunction::hash_block_type;
+
+    /**
+    A parms_id_type value consisting of zeros.
+    */
+    constexpr parms_id_type parms_id_zero = util::HashFunction::hash_zero_block;
+
     class EncryptionParameters {
 
     public:
