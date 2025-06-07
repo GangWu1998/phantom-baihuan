@@ -13,48 +13,49 @@ namespace phantom::util {
 
     constexpr uint32_t generator_ = 5;
 
-    [[nodiscard]] inline auto get_elt_from_step(int step, size_t coeff_count) {
-        auto n = static_cast<uint32_t>(coeff_count);
-        uint32_t m32 = n * 2;
-        auto m = static_cast<uint64_t>(m32);
+    // baihuan
+    // [[nodiscard]] inline auto get_elt_from_step(int step, size_t coeff_count) {
+    //     auto n = static_cast<uint32_t>(coeff_count);
+    //     uint32_t m32 = n * 2;
+    //     auto m = static_cast<uint64_t>(m32);
 
-        if (step == 0) {
-            return static_cast<uint32_t>(m - 1);
-        } else {
-            // Extract sign of steps. When steps is positive, the rotation
-            // is to the left; when steps is negative, it is to the right.
-            bool sign = step < 0;
-            auto pos_step = static_cast<uint32_t>(abs(step));
+    //     if (step == 0) {
+    //         return static_cast<uint32_t>(m - 1);
+    //     } else {
+    //         // Extract sign of steps. When steps is positive, the rotation
+    //         // is to the left; when steps is negative, it is to the right.
+    //         bool sign = step < 0;
+    //         auto pos_step = static_cast<uint32_t>(abs(step));
 
-            if (pos_step >= (n >> 1)) {
-                throw std::invalid_argument("step count too large");
-            }
+    //         if (pos_step >= (n >> 1)) {
+    //             throw std::invalid_argument("step count too large");
+    //         }
 
-            pos_step &= m32 - 1;
-            if (sign) {
-                step = static_cast<int>(n >> 1) - static_cast<int>(pos_step);
-            } else {
-                step = static_cast<int>(pos_step);
-            }
+    //         pos_step &= m32 - 1;
+    //         if (sign) {
+    //             step = static_cast<int>(n >> 1) - static_cast<int>(pos_step);
+    //         } else {
+    //             step = static_cast<int>(pos_step);
+    //         }
 
-            // Construct Galois element for row rotation
-            auto gen = static_cast<uint64_t>(generator_);
-            uint64_t galois_elt = 1;
-            while (step--) {
-                galois_elt *= gen;
-                galois_elt &= m - 1;
-            }
-            return static_cast<uint32_t>(galois_elt);
-        }
-    }
+    //         // Construct Galois element for row rotation
+    //         auto gen = static_cast<uint64_t>(generator_);
+    //         uint64_t galois_elt = 1;
+    //         while (step--) {
+    //             galois_elt *= gen;
+    //             galois_elt &= m - 1;
+    //         }
+    //         return static_cast<uint32_t>(galois_elt);
+    //     }
+    // }
 
-    [[nodiscard]] inline auto get_elts_from_steps(const std::vector<int> &steps, size_t coeff_count) {
-        std::vector<std::uint32_t> galois_elts;
-        for (auto step: steps) {
-            galois_elts.push_back(get_elt_from_step(step, coeff_count));
-        }
-        return galois_elts;
-    }
+    // [[nodiscard]] inline auto get_elts_from_steps(const std::vector<int> &steps, size_t coeff_count) {
+    //     std::vector<std::uint32_t> galois_elts;
+    //     for (auto step: steps) {
+    //         galois_elts.push_back(get_elt_from_step(step, coeff_count));
+    //     }
+    //     return galois_elts;
+    // }
 
     class PhantomGaloisTool {
 
@@ -68,10 +69,11 @@ namespace phantom::util {
         std::vector<phantom::util::cuda_auto_ptr<uint64_t>> index_raw_tables_; // only used by bfv
         bool is_bfv_;
 
-        /**
-        Compute a vector of all necessary galois_elts.
-        */
-        [[nodiscard]] std::vector<uint32_t> get_elts_all() const;
+        // baihuan
+        // /**
+        // Compute a vector of all necessary galois_elts.
+        // */
+        // [[nodiscard]] std::vector<uint32_t> get_elts_all() const;
 
     public:
 
@@ -145,10 +147,17 @@ namespace phantom::util {
             return galois_elts_;
         }
 
+
+        // baihuan
+        /**
+        Compute the Galois element corresponding to a given rotation step.
+        */
+        [[nodiscard]] std::uint32_t get_elt_from_step(int step) const;
+
         [[nodiscard]] inline std::vector<std::uint32_t> get_elts_from_steps(const std::vector<int> &steps) const {
             std::vector<std::uint32_t> elts;
             for (auto step: steps)
-                elts.push_back(get_elt_from_step(step, coeff_count_));
+                elts.push_back(get_elt_from_step(step));
             return elts;
         }
 
