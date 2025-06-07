@@ -37,6 +37,42 @@ namespace phantom::util {
             dst[(idx % poly_degree) + twr * poly_degree] = res;
         }
     }
+    
+    // baihuan
+    [[nodiscard]] std::uint32_t PhantomGaloisTool::get_elt_from_step(int step) const {
+        auto n = static_cast<uint32_t>(coeff_count_);
+        uint32_t m32 = n * 2;
+        auto m = static_cast<uint64_t>(m32);
+
+        if (step == 0) {
+            return static_cast<uint32_t>(m - 1);
+        } else {
+            // Extract sign of steps. When steps is positive, the rotation
+            // is to the left; when steps is negative, it is to the right.
+            bool sign = step < 0;
+            auto pos_step = static_cast<uint32_t>(abs(step));
+
+            if (pos_step >= (n >> 1)) {
+                throw invalid_argument("step count too large");
+            }
+
+            pos_step &= m32 - 1;
+            if (sign) {
+                step = static_cast<int>(n >> 1) - static_cast<int>(pos_step);
+            } else {
+                step = static_cast<int>(pos_step);
+            }
+
+            // Construct Galois element for row rotation
+            auto gen = static_cast<uint64_t>(generator_);
+            uint64_t galois_elt = 1;
+            while (step--) {
+                galois_elt *= gen;
+                galois_elt &= m - 1;
+            }
+            return static_cast<uint32_t>(galois_elt);
+        }
+    }
 
     [[nodiscard]] std::vector<uint32_t> PhantomGaloisTool::get_elts_all() const {
         auto m = static_cast<uint32_t>(static_cast<uint64_t>(coeff_count_) << 1);

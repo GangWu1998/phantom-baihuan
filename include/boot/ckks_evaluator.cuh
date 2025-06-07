@@ -125,40 +125,40 @@ namespace phantom
     // Mod switch
     inline void mod_switch_to_next_inplace(PhantomCiphertext &ct)
     {
-      ::mod_switch_to_next_inplace(*context, ct);
+      phantom::mod_switch_to_next_inplace(*context, ct);
     }
-    inline void mod_switch_to_next_inplace(PhantomPlaintext &ct)
+    inline void mod_switch_to_next_inplace(PhantomPlaintext &pt)
     {
-      ::mod_switch_to_next_inplace(*context, ct);
+      phantom::mod_switch_to_next_inplace(*context, pt);
     }
     inline void mod_switch_to_inplace(PhantomCiphertext &ct, size_t chain_index)
     {
-      ::mod_switch_to_inplace(*context, ct, chain_index);
+      phantom::mod_switch_to_inplace(*context, ct, chain_index);
     }
 
     inline void mod_switch_to_inplace(PhantomPlaintext &pt, size_t chain_index)
     {
-      ::mod_switch_to_inplace(*context, pt, chain_index);
+      phantom::mod_switch_to_inplace(*context, pt, chain_index);
     }
 
     inline void rescale_to_next_inplace(PhantomCiphertext &ct)
     {
-      ::rescale_to_next_inplace(*context, ct);
+      phantom::rescale_to_next_inplace(*context, ct);
     }
     inline void rescale_to_next(const PhantomCiphertext &ct, PhantomCiphertext &dest)
     {
-      dest = ::rescale_to_next(*context, ct);
+      dest = phantom::rescale_to_next(*context, ct);
     }
     
 
     // Relinearization
     inline void relinearize_inplace(PhantomCiphertext &ct, const PhantomRelinKey &relin_keys)
     {
-      ::relinearize_inplace(*context, ct, relin_keys);
+      phantom::relinearize_inplace(*context, ct, relin_keys);
     }
     inline void relinearize(const PhantomCiphertext &ct, const PhantomRelinKey &relin_keys, PhantomCiphertext &dest)
     {
-      dest = ::relinearize(*context, ct, relin_keys);
+      dest = phantom::relinearize(*context, ct, relin_keys);
     }
 
     // Multiplication
@@ -187,38 +187,38 @@ namespace phantom
 
     inline void multiply_inplace(PhantomCiphertext &ct1, const PhantomCiphertext &ct2)
     {
-      ::multiply_inplace(*context, ct1, ct2);
+      phantom::multiply_inplace(*context, ct1, ct2);
     }
 
     inline void multiply_plain(const PhantomCiphertext &ct, const PhantomPlaintext &plain, PhantomCiphertext &dest)
     {
-      dest = ::multiply_plain(*context, ct, plain);
+      dest = phantom::multiply_plain(*context, ct, plain);
     }
 
     inline void multiply_plain_inplace(PhantomCiphertext &ct, const PhantomPlaintext &plain)
     {
-      ::multiply_plain_inplace(*context, ct, plain);
+      phantom::multiply_plain_inplace(*context, ct, plain);
     }
 
     // Addition
     inline void add_plain(const PhantomCiphertext &ct, const PhantomPlaintext &plain, PhantomCiphertext &dest)
     {
-      dest = ::add_plain(*context, ct, plain);
+      dest = phantom::add_plain(*context, ct, plain);
     }
 
     inline void add_plain_inplace(PhantomCiphertext &ct, const PhantomPlaintext &plain)
     {
-      ::add_plain_inplace(*context, ct, plain);
+      phantom::add_plain_inplace(*context, ct, plain);
     }
 
     inline void add(const PhantomCiphertext &ct1, const PhantomCiphertext &ct2, PhantomCiphertext &dest)
     {
-      dest = ::add(*context, ct1, ct2);
+      dest = phantom::add(*context, ct1, ct2);
     }
 
     inline void add_inplace(PhantomCiphertext &ct1, const PhantomCiphertext &ct2)
     {
-      ::add_inplace(*context, ct1, ct2);
+      phantom::add_inplace(*context, ct1, ct2);
     }
 
     inline void add_many(vector<PhantomCiphertext> &cts, PhantomCiphertext &dest)
@@ -243,7 +243,7 @@ namespace phantom
 
     inline void sub_plain_inplace(PhantomCiphertext &ct, PhantomPlaintext &plain)
     {
-      ::sub_plain_inplace(*context, ct, plain);
+      phantom::sub_plain_inplace(*context, ct, plain);
     }
 
     inline void sub(PhantomCiphertext &ct1, const PhantomCiphertext &ct2, PhantomCiphertext &dest)
@@ -262,19 +262,19 @@ namespace phantom
 
     inline void sub_inplace(PhantomCiphertext &ct1, const PhantomCiphertext &ct2)
     {
-      ::sub_inplace(*context, ct1, ct2);
+      phantom::sub_inplace(*context, ct1, ct2);
     }
 
     // Rotation
     inline void rotate_vector( PhantomCiphertext &ct, int steps, PhantomGaloisKey &galois_keys, PhantomCiphertext &dest)
     {
-      dest = ::rotate(*context, ct, steps, galois_keys);
+      dest = phantom::rotate(*context, ct, steps, galois_keys);
       cudaStreamSynchronize(ct.data_ptr().get_stream()); // this is currently required, rotation is unstable
     }
 
     inline void rotate_vector_inplace(PhantomCiphertext &ct, int steps, PhantomGaloisKey &galois_keys)
     {
-      ::rotate_inplace(*context, ct, steps, galois_keys);
+      phantom::rotate_inplace(*context, ct, steps, galois_keys);
       cudaStreamSynchronize(ct.data_ptr().get_stream()); // this is currently required, rotation is unstable
     }
 
@@ -287,19 +287,19 @@ namespace phantom
 
     inline void negate_inplace(PhantomCiphertext &ct)
     {
-      ::negate_inplace(*context, ct);
+      phantom::negate_inplace(*context, ct);
     }
 
     // Galois
     inline void apply_galois(PhantomCiphertext &ct, uint32_t elt, PhantomGaloisKey &galois_keys, PhantomCiphertext &dest)
     {
-      dest = ::apply_galois(*context, ct, elt, galois_keys);
+      dest = phantom::apply_galois(*context, ct, elt, galois_keys);
     }
 
     inline void apply_galois_inplace(PhantomCiphertext &ct, int step, PhantomGaloisKey &galois_keys)
     {
       auto elt = context->key_galois_tool_->get_elt_from_step(step);
-      ::apply_galois_inplace(*context, ct, elt, galois_keys);
+      phantom::apply_galois_inplace(*context, ct, elt, galois_keys);
     }
 
     // Complex Conjugate
@@ -311,7 +311,7 @@ namespace phantom
 
     inline void complex_conjugate_inplace(PhantomCiphertext &ct, const PhantomGaloisKey &galois_keys)
     {
-      ::complex_conjugate_inplace(*context, ct, galois_keys);
+      phantom::complex_conjugate_inplace(*context, ct, galois_keys);
     }
 
     // Matrix Multiplication
@@ -431,7 +431,7 @@ namespace phantom
 
     inline void double_inplace(PhantomCiphertext &ct) const
     {
-      ::add_inplace(*context, ct, ct);
+      phantom::add_inplace(*context, ct, ct);
     }
 
     template <typename T, typename = std::enable_if_t<std::is_same<std::remove_cv_t<T>, double>::value || std::is_same<std::remove_cv_t<T>, std::complex<double>>::value>>

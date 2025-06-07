@@ -105,6 +105,8 @@ class PhantomRelinKey
 
 private:
     bool gen_flag_ = false;
+    //newly add 
+    phantom::parms_id_type parms_id_ = phantom::parms_id_zero;
     std::vector<PhantomPublicKey> public_keys_;
     phantom::util::cuda_auto_ptr<uint64_t*> public_keys_ptr_;
 
@@ -171,6 +173,8 @@ class PhantomGaloisKey
 
 private:
     bool gen_flag_ = false;
+    // newly add
+    phantom::parms_id_type parms_id_ = phantom::parms_id_zero;
     std::vector<PhantomRelinKey> relin_keys_;
 
 public:
@@ -227,10 +231,14 @@ class PhantomSecretKey
 {
 private:
     bool gen_flag_ = false;
+    //newly add
+    uint64_t chain_index_ = 0;
     size_t sk_max_power_ = 0; // the max power of secret key
     size_t poly_modulus_degree_ = 0;
     size_t coeff_modulus_size_ = 0;
 
+    //newly add
+    phantom::util::cuda_auto_ptr<uint64_t> data_rns_;
     phantom::util::cuda_auto_ptr<uint64_t> secret_key_array_; // the powers of secret key
 
     /** Generate the powers of secret key
@@ -300,6 +308,11 @@ public:
     [[nodiscard]] PhantomRelinKey gen_relinkey(const PhantomContext& context);
 
     [[nodiscard]] PhantomGaloisKey create_galois_keys(const PhantomContext& context) const;
+
+    //newly add
+    [[nodiscard]] PhantomGaloisKey create_galois_keys_from_elts(PhantomContext &context,const std::vector<uint32_t> &elts) const;
+
+    [[nodiscard]] PhantomGaloisKey create_galois_keys_from_steps(PhantomContext &context, const std::vector<int> &steps) const; 
 
     /** Symmetric encryption, the plaintext and ciphertext are in NTT form
      * @param[in] context PhantomContext

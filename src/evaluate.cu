@@ -1637,7 +1637,7 @@ Returns (f, e1, e2) such that
         size_t coeff_count = context_data.parms().poly_modulus_degree();
         auto &key_galois_tool = context.key_galois_tool_;
         auto &galois_elts = key_galois_tool->galois_elts();
-        auto step_galois_elt = get_elt_from_step(step, coeff_count);
+        auto step_galois_elt = key_galois_tool->get_elt_from_step(step);
 
         auto iter = find(galois_elts.begin(), galois_elts.end(), step_galois_elt);
         if (iter != galois_elts.end()) {
@@ -1665,6 +1665,19 @@ Returns (f, e1, e2) such that
     void rotate_inplace(const PhantomContext &context, PhantomCiphertext &encrypted, int step,
                         const PhantomGaloisKey &galois_key) {
         rotate_internal(context, encrypted, step, galois_key);
+    }
+    
+    // newly add
+    void complex_conjugate_inplace(const PhantomContext &context, PhantomCiphertext &encrypted,
+                                const PhantomGaloisKey &galois_key,
+                                const phantom::util::cuda_stream_wrapper &stream_wrapper)
+    {
+        if (context.key_context_data().parms().scheme() != phantom::scheme_type::ckks)
+        {
+            throw std::logic_error("unsupported scheme");
+        }
+        auto &key_galois_tool = context.key_galois_tool_;
+        apply_galois_inplace(context, encrypted, key_galois_tool->get_elt_from_step(0), galois_key);
     }
 
     void hoisting_inplace(const PhantomContext &context, PhantomCiphertext &ct, const PhantomGaloisKey &glk,

@@ -11,6 +11,7 @@ class PhantomCiphertext {
     friend class PhantomSecretKey;
 
 private:
+    phantom::parms_id_type parms_id_ = phantom::parms_id_zero;
 
     size_t chain_index_ = 0; // The index this ciphertext corresponding
     size_t size_ = 0; // The number of poly in ciphertext
@@ -71,6 +72,42 @@ public:
         coeff_modulus_size_ = coeff_modulus_size;
     }
 
+    // Newly added resize chain_index
+    void resize(const PhantomContext &context, size_t chain_index, const cudaStream_t &stream)
+    {
+        auto &context_data = context.get_context_data(chain_index);
+        auto &parms = context_data.parms();
+        auto &coeff_modulus = parms.coeff_modulus();
+        auto coeff_modulus_size = coeff_modulus.size();
+        auto poly_modulus_degree = parms.poly_modulus_degree();
+
+        size_t old_size = size_ * coeff_modulus_size_ * poly_modulus_degree_;
+        size_t new_size = size_ * coeff_modulus_size * poly_modulus_degree;
+
+        if (new_size == 0)
+        {
+            data_.reset();
+            return;
+        }
+
+        if (new_size != old_size)
+        {
+            auto prev_data(std::move(data_));
+            data_ = phantom::util::make_cuda_auto_ptr<uint64_t>(size_ * coeff_modulus_size * poly_modulus_degree, stream);
+
+            // Initialize the data to 0
+            cudaMemsetAsync(data_.get(), 0, size_ * coeff_modulus_size * poly_modulus_degree * sizeof(uint64_t), stream);
+
+            size_t copy_size = std::min(old_size, new_size);
+            cudaMemcpyAsync(data_.get(), prev_data.get(), copy_size * sizeof(uint64_t), cudaMemcpyDeviceToDevice,
+                            stream);
+        }
+
+        chain_index_ = chain_index;
+        poly_modulus_degree_ = poly_modulus_degree;
+        coeff_modulus_size_ = coeff_modulus_size;
+    }
+
     void resize(size_t size, size_t coeff_modulus_size, size_t poly_modulus_degree, const cudaStream_t &stream) {
         size_t old_size = size_ * coeff_modulus_size_ * poly_modulus_degree_;
         size_t new_size = size * coeff_modulus_size * poly_modulus_degree;
@@ -92,6 +129,38 @@ public:
         size_ = size;
         coeff_modulus_size_ = coeff_modulus_size;
         poly_modulus_degree_ = poly_modulus_degree;
+    }
+
+    //newly add
+    inline void zero_ciph() noexcept
+    {
+        parms_id_ = phantom::parms_id_zero;
+        chain_index_ = 0;
+        noiseScaleDeg_ = 1;
+        is_asymmetric_ = false;
+        is_ntt_form_ = false;
+        size_ = 0;
+        poly_modulus_degree_ = 0;
+        coeff_modulus_size_ = 0;
+        scale_ = 1.0;
+    }
+    //newly add
+    inline void release() noexcept
+    {
+        if(data_.get() != nullptr)
+        {
+            data_.reset();// Use reset() instead of calling the destructor directly
+        }    
+        parms_id_ = phantom::parms_id_zero;
+        chain_index_ = 0;
+        noiseScaleDeg_ = 1;
+        is_asymmetric_ = false;
+        is_ntt_form_ = false;
+        size_ = 0;
+        poly_modulus_degree_ = 0;
+        coeff_modulus_size_ = 0;
+        scale_ = 1.0;
+        
     }
 
     void SetNoiseScaleDeg(size_t noiseScaleDeg) {
@@ -138,6 +207,17 @@ public:
         return is_asymmetric_;
     }
 
+    [[nodiscard]] auto &parms_id() const noexcept
+    {
+        return parms_id_;
+    }
+
+    // Newly added to provide a similar API to SEAL for getting context data
+    [[nodiscard]] std::size_t params_id() const noexcept
+    {
+        return chain_index_;
+    }    
+
     [[nodiscard]] auto &chain_index() const noexcept {
         return chain_index_;
     }
@@ -154,12 +234,24 @@ public:
         return scale_;
     }
 
+    // Newly added to make scale easily modifiable
+    [[nodiscard]] auto &scale() noexcept
+    {
+        return scale_;
+    }
+
     [[nodiscard]] auto &correction_factor() const noexcept {
         return correction_factor_;
     }
 
     [[nodiscard]] auto data() const {
         return data_.get();
+    }
+
+    //newly add
+    [[nodiscard]] auto data(size_t poly_index) const
+    {
+        return data_.get() + poly_index * (poly_modulus_degree_ * coeff_modulus_size_);
     }
 
     [[nodiscard]] auto &data_ptr() {

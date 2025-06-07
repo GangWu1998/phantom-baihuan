@@ -232,6 +232,19 @@ namespace phantom {
         return destination;
     }
 
+    void complex_conjugate_inplace(const PhantomContext &context, PhantomCiphertext &encrypted,
+                                const PhantomGaloisKey &galois_key,
+                                const phantom::util::cuda_stream_wrapper &stream_wrapper = *phantom::util::global_variables::default_stream);
+
+    inline auto complex_conjugate(const PhantomContext &context, const PhantomCiphertext &encrypted,
+                                const PhantomGaloisKey &galois_key,
+                                const phantom::util::cuda_stream_wrapper &stream_wrapper = *phantom::util::global_variables::default_stream)
+    {
+        PhantomCiphertext destination = encrypted;
+        complex_conjugate_inplace(context, destination, galois_key, stream_wrapper);
+        return destination;
+    }
+
 /*************************************************** Advanced APIs ****************************************************/
 
     void hoisting_inplace(const PhantomContext &context, PhantomCiphertext &ct, const PhantomGaloisKey &glk,
