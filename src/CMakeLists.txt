@@ -1,6 +1,6 @@
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_library(Phantom SHARED
+add_library(Phantom STATIC
         context.cu
         batchencoder.cu
         prng.cu
@@ -34,8 +34,23 @@ add_library(Phantom SHARED
         host/uintarith.cu
         host/uintarithmod.cu
         host/uintarithsmallmod.cu
+
+        boot/Bootstrapper.cu
+        boot/ckks_evaluator.cu
+        boot/ModularReducer.cu
+        boot/common/Choosemax.cu
+        boot/common/MinicompFunc.cu
+        boot/common/MinicompRemez.cu
+        boot/common/Point.cu
+        boot/common/PolyUpdate.cu
+        boot/common/Polynomial.cu
+        boot/common/Remez.cu
+        boot/common/RemezApp.cu
+        boot/common/func.cu
 )
 
 target_compile_options(Phantom PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--default-stream per-thread>)
 target_compile_options(Phantom PRIVATE $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>:-G;-src-in-ptx>)
 target_compile_features(Phantom PUBLIC cxx_std_17 cuda_std_17)
+target_compile_features(Phantom PUBLIC cxx_std_17 cuda_std_17)
+target_link_libraries(Phantom INTERFACE ${NTL_LIBRARY} ${GMP_LIBRARY})

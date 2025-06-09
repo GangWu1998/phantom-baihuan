@@ -13,6 +13,8 @@ class PhantomCKKSEncoder {
 private:
 
     uint32_t slots_{};
+    uint32_t sparse_slots_ = 0;
+    uint32_t decoding_sparse_slots_ = 0;
     std::unique_ptr<phantom::util::ComplexRoots> complex_roots_;
     std::vector<cuDoubleComplex> root_powers_;
     std::vector<uint32_t> rotation_group_;
@@ -107,6 +109,10 @@ public:
 
     [[nodiscard]] inline std::size_t slot_count() const noexcept {
         return slots_;
+    }
+
+    void reset_sparse_slots() {
+        sparse_slots_ = 0;
     }
 
     auto &gpu_ckks_msg_vec() {

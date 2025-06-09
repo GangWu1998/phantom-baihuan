@@ -32,6 +32,24 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 # library
 add_subdirectory(src)
 
+# find NTL and GMP library
+find_library(NTL_LIBRARY NAMES ntl NTL)
+set(GMP_LIBRARY /usr/local/lib/libgmp.a CACHE FILEPATH "Path to static GMP library")
+#find_library(GMP_LIBRARY NAMES gmp)
+
+# find head files path
+find_path(NTL_INCLUDE_DIR NAMES NTL/ZZ.h)
+find_path(GMP_INCLUDE_DIR NAMES gmp.h)
+
+# message
+message(STATUS "NTL_LIBRARY = ${NTL_LIBRARY}")
+message(STATUS "NTL_INCLUDE_DIR = ${NTL_INCLUDE_DIR}")
+message(STATUS "GMP_LIBRARY = ${GMP_LIBRARY}")
+message(STATUS "GMP_INCLUDE_DIR = ${GMP_INCLUDE_DIR}")
+
+# include directories
+include_directories(${NTL_INCLUDE_DIR} ${GMP_INCLUDE_DIR})
+
 # example
 # [option] PHANTOM_ENABLE_EXAMPLE (default: ON)
 option(PHANTOM_ENABLE_EXAMPLE "Enable examples" ON)
