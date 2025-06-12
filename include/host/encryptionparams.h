@@ -34,6 +34,16 @@ namespace phantom {
         hps_overq_leveled = 4 // HPS over Q leveled
     };
 
+    /**
+    The data type to store unique identifiers of encryption parameters.
+    */
+    using parms_id_type = util::HashFunction::hash_block_type;
+
+    /**
+    A parms_id_type value consisting of zeros.
+    */
+    constexpr parms_id_type parms_id_zero = util::HashFunction::hash_zero_block;
+
     class EncryptionParameters {
 
     public:
@@ -95,6 +105,38 @@ namespace phantom {
             }
 
             special_modulus_size_ = special_modulus_size;
+        }
+
+        inline void set_secret_key_hamming_weight(std::size_t secret_key_hamming_weight) {
+            if (scheme_ == scheme_type::none && secret_key_hamming_weight)
+            {
+                throw std::logic_error("secret key hamming weight is not supported for this scheme");
+            }
+
+            // Set the degree
+            secret_key_hamming_weight_ = secret_key_hamming_weight;
+
+            // Re-compute the parms_id
+            compute_parms_id();
+        }
+
+        // Manually specify CKKSEncoder's sparse slots
+        inline void set_sparse_slots(std::size_t sparse_slots) {
+            if (scheme_ == scheme_type::none && sparse_slots)
+            {
+                throw std::logic_error("secret key hamming weight is not supported for this scheme");
+            }
+
+            if ((sparse_slots & (sparse_slots - 1)) != 0)
+            {
+                throw std::logic_error("secret key hamming weight is not zero or power-of-two");
+            }
+
+            // Set the degree
+            sparse_slots_= sparse_slots;
+
+            // Re-compute the parms_id
+            compute_parms_id();
         }
 
         inline void set_galois_elts(const std::vector<uint32_t> &galois_elts) {
@@ -224,6 +266,50 @@ namespace phantom {
             }
         }
 
+        inline void compute_parms_id() {
+            size_t coeff_modulus_size = coeff_modulus_.size();
+            size_t key_modulus_size = key_modulus_.size();
+
+            size_t total_uint64_count = size_t(1) + // scheme
+                                        size_t(1) + // poly_modulus_degree
+                                        size_t(1) + // special_modulus_size
+                                        key_modulus_size + // key_modulus
+                                        coeff_modulus_size + plain_modulus_.uint64_count();
+
+            std::vector<uint64_t> param_data;
+            param_data.resize(total_uint64_count);
+            uint64_t *param_data_ptr = param_data.data();
+
+            // Write the scheme identifier
+            *param_data_ptr++ = static_cast<uint64_t>(scheme_);
+
+            // Write the poly_modulus_degree. Note that it will always be positive.
+            *param_data_ptr++ = static_cast<uint64_t>(poly_modulus_degree_);
+
+            // Write the special_modulus_size
+            *param_data_ptr++ = static_cast<uint64_t>(special_modulus_size_);
+
+            for (const auto &mod: key_modulus_) {
+                *param_data_ptr++ = mod.value();
+            }
+
+            for (const auto &mod: coeff_modulus_) {
+                *param_data_ptr++ = mod.value();
+            }
+
+            if (plain_modulus_.uint64_count() == 1) {
+                *param_data_ptr++ = plain_modulus_.value();
+            }
+
+            phantom::util::HashFunction::hash(param_data.data(), total_uint64_count, parms_id_);
+
+            // Did we somehow manage to get a zero block as result? This is reserved for
+            // plaintexts to indicate non-NTT-transformed form.
+            if (parms_id_ == parms_id_zero) {
+                throw std::logic_error("parms_id cannot be zero");
+            }
+        }
+
         scheme_type scheme_;
 
         mul_tech_type mul_tech_;
@@ -233,6 +319,10 @@ namespace phantom {
         // used for hybrid key-switching
         // default is 1
         std::size_t special_modulus_size_ = 1;
+
+        std::size_t secret_key_hamming_weight_ = 0;
+
+        std::size_t sparse_slots_ = 0;
 
         // used for hybrid key-switching
         std::vector<arith::Modulus> key_modulus_{};
