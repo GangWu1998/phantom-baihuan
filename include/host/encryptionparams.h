@@ -332,5 +332,7 @@ namespace phantom {
         std::vector<uint32_t> galois_elts_{};
 
         arith::Modulus plain_modulus_{};
+
+        parms_id_type parms_id_ = parms_id_zero;
     };
 }

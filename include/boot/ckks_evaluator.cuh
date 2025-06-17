@@ -58,7 +58,11 @@ namespace phantom
         return;
       }
       complex_values.resize(encoder->slot_count(), 0.0 + 0.0i);
-      encoder->encode(*context, complex_values, scale, plain);
+      std::vector<cuDoubleComplex> cuda_values(complex_values.size());
+      for (size_t i = 0; i < complex_values.size(); ++i) {
+          cuda_values[i] = make_cuDoubleComplex(complex_values[i].real(), complex_values[i].imag());
+      }
+      encoder->encode(*context, cuda_values, scale, plain);
     }
 
     // Value inputs (fill all slots with that value)
@@ -77,7 +81,11 @@ namespace phantom
     inline void encode(complex<double> complex_value, double scale, PhantomPlaintext &plain)
     {
       vector<complex<double>> complex_values(encoder->slot_count(), complex_value);
-      encoder->encode(*context, complex_values, scale, plain);
+      std::vector<cuDoubleComplex> cuda_values(complex_values.size());
+      for (size_t i = 0; i < complex_values.size(); ++i) {
+          cuda_values[i] = make_cuDoubleComplex(complex_values[i].real(), complex_values[i].imag());
+      }
+      encoder->encode(*context, cuda_values, scale, plain);
     }
 
     template <typename T, typename = std::enable_if_t<std::is_same<std::remove_cv_t<T>, double>::value || std::is_same<std::remove_cv_t<T>, std::complex<double>>::value>>
@@ -299,9 +307,8 @@ namespace phantom
     // baihuan
     inline void apply_galois_inplace(PhantomCiphertext &ct, int step, PhantomGaloisKey &galois_keys)
     {
-
-      auto elt = phantom::util::get_elt_from_step(step);
-
+      auto &key_galois_tool = context->key_galois_tool_;
+      auto elt = key_galois_tool->get_elt_from_step(step);
       phantom::apply_galois_inplace(*context, ct, elt, galois_keys);
     }
 
@@ -493,7 +500,9 @@ namespace phantom
     // baihuan
     inline void create_galois_keys_from_steps(vector<int> &steps, PhantomGaloisKey &galois_keys)
     {
-      const auto &s = phantom::util::global_variables::default_stream->get_stream();
+      // const auto &s = phantom::util::global_variables::default_stream->get_stream();
+      phantom::util::cuda_stream_wrapper stream_wrapper;
+      const auto &s = stream_wrapper.get_stream();
 
       auto elts = context->key_galois_tool_->get_elts_from_steps(steps);
       int log_n = phantom::arith::get_power_of_two(context->poly_degree_);
@@ -507,7 +516,9 @@ namespace phantom
 
     inline void create_galois_keys_from_elts(vector<uint32_t> &elts, PhantomGaloisKey &galois_keys)
     {
-      const auto &s = phantom::util::global_variables::default_stream->get_stream();
+      // const auto &s = phantom::util::global_variables::default_stream->get_stream();
+      phantom::util::cuda_stream_wrapper stream_wrapper;
+      const auto &s = stream_wrapper.get_stream();
       int log_n = phantom::arith::get_power_of_two(context->poly_degree_);
       
       context->key_galois_tool_.reset();

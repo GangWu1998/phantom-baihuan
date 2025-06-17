@@ -144,17 +144,24 @@ namespace phantom::util {
             return galois_elts_;
         }
 
+        [[nodiscard]] inline uint32_t get_elt_from_step(int step) const {
+            return ::phantom::util::get_elt_from_step(step, coeff_count_);
+        }
+
         [[nodiscard]] inline std::vector<std::uint32_t> get_elts_from_steps(const std::vector<int> &steps) const {
             std::vector<std::uint32_t> elts;
             for (auto step: steps)
-                elts.push_back(get_elt_from_step(step, coeff_count_));
+                elts.push_back(get_elt_from_step(step));
             return elts;
         }
+
+
 
         void apply_galois(uint64_t *operand, const DNTTTable &rns_table, size_t coeff_mod_size, size_t galois_elt_idx,
                           uint64_t *result, const cudaStream_t &stream);
 
         void apply_galois_ntt(uint64_t *operand, size_t coeff_mod_size, size_t galois_elt_idx, uint64_t *result,
                               const cudaStream_t &stream);
+
     };
 }

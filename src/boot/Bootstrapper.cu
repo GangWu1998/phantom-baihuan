@@ -1847,7 +1847,7 @@ void Bootstrapper::subsum(double scale, PhantomCiphertext &cipher) {
 
   PhantomPlaintext tmpplain;
   ckks->encoder.encode(1.0 / repeatcount, scale, tmpplain);
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher.chain_index());
   ckks->evaluator.multiply_plain_inplace(cipher, tmpplain);
   ckks->evaluator.rescale_to_next_inplace(cipher);
 }
@@ -2198,7 +2198,7 @@ void Bootstrapper::sfl(PhantomCiphertext &rtncipher, PhantomCiphertext &cipher) 
   ckks->evaluator.rescale_to_next_inplace(tmpct);
 
   const auto &modulus = ckks->context->first_context_data().parms().coeff_modulus();
-  auto curr_level = ckks->context->get_context_data(tmpct.params_id()).total_coeff_modulus().size() - 1;
+  auto curr_level = ckks->context->get_context_data(tmpct.chain_index()).total_coeff_modulus().size() - 1;
 
   double mod_zero = (double)modulus[0].value();
   double curr_mod = (double)modulus[curr_level].value();
@@ -2228,7 +2228,7 @@ void Bootstrapper::sfl_full(PhantomCiphertext &rtncipher, PhantomCiphertext &cip
   ckks->evaluator.rescale_to_next_inplace(tmpct);
 
   const auto modulus = ckks->context->first_context_data().parms().coeff_modulus();
-  auto curr_level = ckks->context->get_context_data(tmpct.params_id()).total_coeff_modulus().size() - 1;
+  auto curr_level = ckks->context->get_context_data(tmpct.chain_index()).total_coeff_modulus().size() - 1;
 
   double mod_zero = (double)modulus[0].value();
   double curr_mod = (double)modulus[curr_level].value();
@@ -2294,7 +2294,7 @@ void Bootstrapper::sfl_3(PhantomCiphertext &rtncipher, PhantomCiphertext &cipher
   ckks->evaluator.rescale_to_next_inplace(tmpct2);
 
   const auto modulus = ckks->context->first_context_data().parms().coeff_modulus();
-  auto curr_level = ckks->context->get_context_data(tmpct2.params_id()).total_coeff_modulus().size() - 1;
+  auto curr_level = ckks->context->get_context_data(tmpct2.chain_index()).total_coeff_modulus().size() - 1;
 
   double mod_zero = (double)modulus[0].value();
   double curr_mod = (double)modulus[curr_level].value();
@@ -2335,7 +2335,7 @@ void Bootstrapper::sfl_full_3(PhantomCiphertext &rtncipher, PhantomCiphertext &c
   ckks->evaluator.rescale_to_next_inplace(tmpct2);
 
   const auto modulus = ckks->context->first_context_data().parms().coeff_modulus();
-  auto curr_level = ckks->context->get_context_data(tmpct2.params_id()).total_coeff_modulus().size() - 1 ;
+  auto curr_level = ckks->context->get_context_data(tmpct2.chain_index()).total_coeff_modulus().size() - 1 ;
 
   double mod_zero = (double)modulus[0].value();
   double curr_mod = (double)modulus[curr_level].value();
@@ -2374,7 +2374,7 @@ void Bootstrapper::sfl_half_3(PhantomCiphertext &rtncipher, PhantomCiphertext &c
   ckks->evaluator.rescale_to_next_inplace(tmpct2);
 
   const auto modulus = ckks->context->first_context_data().parms().coeff_modulus();
-  auto curr_level = ckks->context->get_context_data(tmpct2.params_id()).total_coeff_modulus().size() - 1;
+  auto curr_level = ckks->context->get_context_data(tmpct2.chain_index()).total_coeff_modulus().size() - 1;
 
   double mod_zero = (double)modulus[0].value();
   double curr_mod = (double)modulus[curr_level].value();
@@ -2414,7 +2414,7 @@ void Bootstrapper::sfl_full_half_3(PhantomCiphertext &rtncipher, PhantomCipherte
   ckks->evaluator.rescale_to_next_inplace(tmpct2);
 
   const auto modulus = ckks->context->first_context_data().parms().coeff_modulus();
-  auto curr_level = ckks->context->get_context_data(tmpct2.params_id()).total_coeff_modulus().size() - 1;
+  auto curr_level = ckks->context->get_context_data(tmpct2.chain_index()).total_coeff_modulus().size() - 1;
 
   double mod_zero = (double)modulus[0].value();
   double curr_mod = (double)modulus[curr_level].value();
@@ -2550,7 +2550,7 @@ void Bootstrapper::coefftoslot_full(PhantomCiphertext &rtncipher1, PhantomCipher
   }
   PhantomPlaintext tmpplain;
   ckks->encoder.encode(tmpvec, 1.0, tmpplain);
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, tmpct1.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, tmpct1.chain_index());
   ckks->evaluator.multiply_plain(tmpct1, tmpplain, tmpct2);
 
   ckks->evaluator.complex_conjugate(tmpct2, *(ckks->galois_keys), tmpct3);
@@ -2570,7 +2570,7 @@ void Bootstrapper::slottocoeff_full(PhantomCiphertext &rtncipher, PhantomCiphert
   PhantomPlaintext tmpplain;
   ckks->encoder.encode(tmpvec, 1.0, tmpplain);
 
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher2.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher2.chain_index());
   ckks->evaluator.multiply_plain(cipher2, tmpplain, tmpct1);
   ckks->evaluator.add_reduced_error(cipher1, tmpct1, tmpct3);
 
@@ -2610,7 +2610,7 @@ void Bootstrapper::coefftoslot_full_3(PhantomCiphertext &rtncipher1, PhantomCiph
   }
   PhantomPlaintext tmpplain;
   ckks->encoder.encode(tmpvec, 1.0, tmpplain);
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, tmpct1.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, tmpct1.chain_index());
   ckks->evaluator.multiply_plain(tmpct1, tmpplain, tmpct2);
 
   ckks->evaluator.complex_conjugate(tmpct2, *(ckks->galois_keys), tmpct3);
@@ -2631,7 +2631,7 @@ void Bootstrapper::slottocoeff_full_3(PhantomCiphertext &rtncipher, PhantomCiphe
   PhantomPlaintext tmpplain;
   ckks->encoder.encode(tmpvec, 1.0, tmpplain);
 
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher2.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher2.chain_index());
   ckks->evaluator.multiply_plain(cipher2, tmpplain, tmpct1);
   ckks->evaluator.add_reduced_error(cipher1, tmpct1, tmpct3);
 
@@ -2649,7 +2649,7 @@ void Bootstrapper::slottocoeff_full_half_3(PhantomCiphertext &rtncipher, Phantom
   PhantomPlaintext tmpplain;
   ckks->encoder.encode(tmpvec, 1.0, tmpplain);
 
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher2.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher2.chain_index());
   ckks->evaluator.multiply_plain(cipher2, tmpplain, tmpct1);
   ckks->evaluator.add_reduced_error(cipher1, tmpct1, tmpct3);
 
@@ -2679,7 +2679,7 @@ void Bootstrapper::coefftoslot_full_hoisting(PhantomCiphertext &rtncipher1, Phan
   }
   PhantomPlaintext tmpplain;
   ckks->encoder.encode(tmpvec, 1.0, tmpplain);
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, tmpct1.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, tmpct1.chain_index());
   ckks->evaluator.multiply_plain(tmpct1, tmpplain, tmpct2);
 
   ckks->evaluator.complex_conjugate(tmpct2, *(ckks->galois_keys), tmpct3);
@@ -2699,7 +2699,7 @@ void Bootstrapper::slottocoeff_full_hoisting(PhantomCiphertext &rtncipher, Phant
   PhantomPlaintext tmpplain;
   ckks->encoder.encode(tmpvec, 1.0, tmpplain);
 
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher2.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher2.chain_index());
   ckks->evaluator.multiply_plain(cipher2, tmpplain, tmpct1);
   ckks->evaluator.add_reduced_error(cipher1, tmpct1, tmpct3);
 
@@ -2759,7 +2759,7 @@ void Bootstrapper::slottocoeff_full_one_depth(PhantomCiphertext &rtncipher, Phan
   }
   PhantomPlaintext tmpplain;
   ckks->encoder.encode(tmpvec, 1.0, tmpplain);
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher2.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher2.chain_index());
   ckks->evaluator.multiply_plain(cipher2, tmpplain, tmpct1);
   ckks->evaluator.add_reduced_error(cipher1, tmpct1, tmpct3);
 
@@ -2823,7 +2823,10 @@ void Bootstrapper::modraise_inplace(PhantomCiphertext &cipher) {
     ckks->evaluator.transform_from_ntt_inplace(cipher);
   }
 
-  const auto &stream = phantom::util::global_variables::default_stream->get_stream();
+  // const auto &stream = phantom::util::global_variables::default_stream->get_stream();
+  phantom::util::cuda_stream_wrapper stream_wrapper;
+  const auto &stream = stream_wrapper.get_stream();
+
   auto N = cipher.poly_modulus_degree();
   const auto &context_data = ckks->context->first_context_data();
   const auto &modulus = context_data.parms().coeff_modulus();
@@ -2840,12 +2843,13 @@ void Bootstrapper::modraise_inplace(PhantomCiphertext &cipher) {
 
   // Resize to the full level.
   auto chain_index = context_data.chain_index();
-  auto &context_data = ckks->context->get_context_data(chain_index);
+  auto &context_data_ = ckks->context->get_context_data(chain_index);
   auto &parms = context_data.parms();
   auto &coeff_modulus = parms.coeff_modulus();
   auto coeff_modulus_size = coeff_modulus.size();
   auto poly_modulus_degree = parms.poly_modulus_degree();
   cipher.resize(cipher.size(), coeff_modulus_size, poly_modulus_degree, stream);
+  // cipher.resize(*ckks->context, context_data.chain_index(), stream);
 
   auto ciphertext_size = cipher.size();
   PhantomCiphertext cipher_copy = cipher;
@@ -2909,7 +2913,7 @@ void Bootstrapper::bootstrap_sparse(PhantomCiphertext &rtncipher, PhantomCiphert
 
   if (logn == 0) {
     const auto modulus = ckks->context->first_context_data().parms().coeff_modulus();
-    auto curr_level = ckks->context->get_context_data(modrtn.params_id()).total_coeff_modulus().size() - 1;
+    auto curr_level = ckks->context->get_context_data(modrtn.chain_index()).total_coeff_modulus().size() - 1;
 
     double mod_zero = (double)modulus[0].value();
     double curr_mod = (double)modulus[curr_level].value();
@@ -3059,7 +3063,7 @@ void Bootstrapper::bootstrap_sparse_3(PhantomCiphertext &rtncipher, PhantomCiphe
 
   if (logn == 0) {
     const auto modulus = ckks->context->first_context_data().parms().coeff_modulus();
-    auto curr_level = ckks->context->get_context_data(modrtn.params_id()).total_coeff_modulus().size() - 1;
+    auto curr_level = ckks->context->get_context_data(modrtn.chain_index()).total_coeff_modulus().size() - 1;
 
     double mod_zero = (double)modulus[0].value();
     double curr_mod = (double)modulus[curr_level].value();
@@ -3161,7 +3165,7 @@ void Bootstrapper::bootstrap_sparse_real_3(PhantomCiphertext &rtncipher, Phantom
 
   if (logn == 0) {
     const auto modulus = ckks->context->first_context_data().parms().coeff_modulus();
-    auto curr_level = ckks->context->get_context_data(modrtn.params_id()).total_coeff_modulus().size() - 1;
+    auto curr_level = ckks->context->get_context_data(modrtn.chain_index()).total_coeff_modulus().size() - 1;
 
     double mod_zero = (double)modulus[0].value();
     double curr_mod = (double)modulus[curr_level].value();
@@ -3236,7 +3240,7 @@ void Bootstrapper::bootstrap_sparse_hoisting(PhantomCiphertext &rtncipher, Phant
   PhantomPlaintext tmpplain;
 
   ckks->encoder.encode(1.0 / (boundary_K * (1 << (logNh - logn))), cipher.scale(), tmpplain);  // scale of tmpplain = Delta
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher.chain_index());
   ckks->evaluator.multiply_plain_inplace(cipher, tmpplain);  // scale of cipher = Delta^2
 
   // Lazy rescaling from now on: No rescaling!!
@@ -3263,7 +3267,7 @@ void Bootstrapper::bootstrap_full_hoisting(PhantomCiphertext &rtncipher, Phantom
   PhantomPlaintext tmpplain;
 
   ckks->encoder.encode(1.0 / boundary_K, cipher.scale(), tmpplain);  // scale of tmpplain = Delta
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher.chain_index());
   ckks->evaluator.multiply_plain_inplace(cipher, tmpplain);  // scale of cipher = Delta^2
 
   // Lazy rescaling from now on: No rescaling!!
@@ -3300,7 +3304,7 @@ void Bootstrapper::bootstrap_one_depth(PhantomCiphertext &rtncipher, PhantomCiph
   PhantomPlaintext tmpplain;
 
   ckks->encoder.encode(1.0 / (boundary_K * (1 << (logNh - logn))), cipher.scale(), tmpplain);  // scale of tmpplain = Delta
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher.chain_index());
   ckks->evaluator.multiply_plain_inplace(cipher, tmpplain);  // scale of cipher = Delta^2
 
   // Lazy rescaling from now on: No rescaling!!
@@ -3328,7 +3332,7 @@ void Bootstrapper::bootstrap_more_depth(PhantomCiphertext &rtncipher, PhantomCip
   PhantomPlaintext tmpplain;
 
   ckks->encoder.encode(1.0 / boundary_K, cipher.scale(), tmpplain);  // scale of tmpplain = Delta
-  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher.params_id());
+  ckks->evaluator.mod_switch_to_inplace(tmpplain, cipher.chain_index());
   ckks->evaluator.multiply_plain_inplace(cipher, tmpplain);  // scale of cipher = Delta^2
 
   // Lazy rescaling from now on: No rescaling!!

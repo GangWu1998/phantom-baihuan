@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cuComplex.h>
+#include <complex>
 
 #include "context.cuh"
 #include "fft.h"
@@ -36,6 +37,19 @@ private:
         std::vector<cuDoubleComplex> input(values_size);
         for (size_t i = 0; i < values_size; i++) {
             input[i] = make_cuDoubleComplex(values[i], 0.0);
+        }
+        encode_internal(context, input, chain_index, scale, destination, stream);
+    }
+
+    inline void encode_internal(const PhantomContext &context,
+                                const std::vector<std::complex<double>> &values,
+                                size_t chain_index, double scale,
+                                PhantomPlaintext &destination,
+                                const cudaStream_t &stream) {
+        size_t values_size = values.size();
+        std::vector<cuDoubleComplex> input(values_size);
+        for (size_t i = 0; i < values_size; i++) {
+            input[i] = make_cuDoubleComplex(values[i].real(), values[i].imag());
         }
         encode_internal(context, input, chain_index, scale, destination, stream);
     }
@@ -80,6 +94,12 @@ public:
         const auto &s = cudaStreamPerThread;
         destination.chain_index_ = 0;
         destination.resize(context.coeff_mod_size_, context.poly_degree_, s);
+        // if constexpr (is_std_complex<T>::value && std::is_same_v<typename T::value_type, double>) {
+        // std::vector<cuDoubleComplex> converted_values(values.size());
+        // for (size_t i = 0; i < values.size(); i++) {
+        //     converted_values[i] = make_cuDoubleComplex(values[i].real(), values[i].imag());
+        //     }
+        // }
         encode_internal(context, values, chain_index, scale, destination, s);
     }
 
