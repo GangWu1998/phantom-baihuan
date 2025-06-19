@@ -52,4 +52,5 @@ namespace phantom::util::global_variables {
     it easy for non-expert users to select secure parameters.
     */
     const std::map<std::size_t, std::vector<arith::Modulus>> &GetDefaultCoeffModulus256();
+
 }

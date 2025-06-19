@@ -13,6 +13,7 @@ using namespace phantom::util;
 using namespace phantom::arith;
 
 namespace phantom {
+
     ContextData::ContextData(const EncryptionParameters &params, const cudaStream_t &stream) {
         parms_ = params;
         const auto &key_modulus = params.key_modulus();

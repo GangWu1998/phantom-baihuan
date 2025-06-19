@@ -8,3 +8,6 @@ find_package(CUDAToolkit REQUIRED)
 add_executable(fft_test fft_test.cu)
 target_link_libraries(fft_test PUBLIC Phantom CUDA::cufft)
 target_include_directories(fft_test PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+target_link_libraries(fft_test  PRIVATE ${NTL_LIBRARY} ${GMP_LIBRARY} pthread)
+target_link_libraries(ntt_test  PRIVATE ${NTL_LIBRARY} ${GMP_LIBRARY} pthread)

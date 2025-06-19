@@ -500,17 +500,26 @@ namespace phantom
     // baihuan
     inline void create_galois_keys_from_steps(vector<int> &steps, PhantomGaloisKey &galois_keys)
     {
+      std::cout << "---1111111-----" << endl;
       // const auto &s = phantom::util::global_variables::default_stream->get_stream();
       phantom::util::cuda_stream_wrapper stream_wrapper;
       const auto &s = stream_wrapper.get_stream();
-
+      std::cout << "---2222222-----" << endl;
       auto elts = context->key_galois_tool_->get_elts_from_steps(steps);
       int log_n = phantom::arith::get_power_of_two(context->poly_degree_);
-      
+      std::cout << "elts = " << std::endl;
+      for(int i = 0 ; i < elts.size() ; i++){
+        std::cout << elts[i] << " ";
+      } 
+      std::cout << "log_n = " << log_n << std::endl;
+      std::cout << "---3333333-----" << endl;
       context->key_galois_tool_.reset();
+      assert(context != nullptr);
+      std::cout << "---4444444-----" << endl;
       context->key_galois_tool_ = std::make_unique<phantom::util::PhantomGaloisTool>(elts, log_n, s, false);
-
+      std::cout << "---5555555-----" << endl;
       galois_keys = decryptor->create_galois_keys(*context);
+
       // galois_keys = decryptor->create_galois_keys_from_steps(*context, steps);
     }
 
@@ -524,7 +533,7 @@ namespace phantom
       context->key_galois_tool_.reset();
       context->key_galois_tool_ = std::make_unique<phantom::util::PhantomGaloisTool>(elts, log_n, s, false);
       galois_keys = decryptor->create_galois_keys(*context);
-      //galois_keys = decryptor->create_galois_keys_from_elts(*context, elts);
+      // galois_keys = decryptor->create_galois_keys_from_elts(*context, elts);
     }
   };
 

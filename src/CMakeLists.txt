@@ -53,4 +53,6 @@ target_compile_options(Phantom PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--default-stre
 target_compile_options(Phantom PRIVATE $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>:-G;-src-in-ptx>)
 target_compile_features(Phantom PUBLIC cxx_std_17 cuda_std_17)
 target_compile_features(Phantom PUBLIC cxx_std_17 cuda_std_17)
-target_link_libraries(Phantom INTERFACE ${NTL_LIBRARY} ${GMP_LIBRARY})
+
+target_link_libraries(Phantom PUBLIC ${NTL_LIBRARY} ${GMP_LIBRARY} pthread)
+target_include_directories(Phantom PRIVATE ${CMAKE_SOURCE_DIR}/include)
