@@ -14,7 +14,7 @@
 #include "cuda_wrapper.cuh"
 
 namespace phantom {
-
+    
     // stores pre-computation data for a given set of encryption parameters.
     class ContextData {
 

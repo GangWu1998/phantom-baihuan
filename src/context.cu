@@ -13,6 +13,9 @@ using namespace phantom::util;
 using namespace phantom::arith;
 
 namespace phantom {
+    // namespace util::global_variables {
+    //     std::unique_ptr<util::cuda_stream_wrapper> default_stream;
+    // }
 
     ContextData::ContextData(const EncryptionParameters &params, const cudaStream_t &stream) {
         parms_ = params;

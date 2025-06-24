@@ -336,12 +336,14 @@ namespace phantom
       dest = ct;
       transform_from_ntt_inplace(dest);
     }
-
+    // baihuan
     inline void transform_from_ntt_inplace(PhantomCiphertext &ct)
     {
       auto rns_coeff_count = ct.poly_modulus_degree() * ct.coeff_modulus_size();
 
       const auto stream = ct.data_ptr().get_stream();
+      // phantom::util::cuda_stream_wrapper stream_wrapper;
+      // const cudaStream_t &stream = stream_wrapper.get_stream();
 
       for (size_t i = 0; i < ct.size(); i++)
       {
@@ -350,7 +352,7 @@ namespace phantom
       }
 
       ct.set_ntt_form(false);
-      // cudaStreamSynchronize(stream);
+      //cudaStreamSynchronize(stream);
     }
 
     inline void transform_to_ntt(const PhantomCiphertext &ct, PhantomCiphertext &dest)
@@ -358,11 +360,13 @@ namespace phantom
       dest = ct;
       transform_to_ntt_inplace(dest);
     }
-
+    // baihuan
     inline void transform_to_ntt_inplace(PhantomCiphertext &ct)
     {
       auto rns_coeff_count = ct.poly_modulus_degree() * ct.coeff_modulus_size();
       const auto stream = ct.data_ptr().get_stream();
+      // phantom::util::cuda_stream_wrapper stream_wrapper;
+      // const auto &stream = stream_wrapper.get_stream();
 
       for (size_t i = 0; i < ct.size(); i++)
       {
@@ -371,7 +375,7 @@ namespace phantom
       }
 
       ct.set_ntt_form(true);
-      // cudaStreamSynchronize(stream);
+      cudaStreamSynchronize(stream);
     }
 
     // Bootstrapping
@@ -527,7 +531,7 @@ namespace phantom
     {
       // const auto &s = phantom::util::global_variables::default_stream->get_stream();
       phantom::util::cuda_stream_wrapper stream_wrapper;
-      const auto &s = stream_wrapper.get_stream();
+      const cudaStream_t &s = stream_wrapper.get_stream();
       int log_n = phantom::arith::get_power_of_two(context->poly_degree_);
       
       context->key_galois_tool_.reset();

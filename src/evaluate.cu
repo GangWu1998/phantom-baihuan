@@ -1549,7 +1549,7 @@ Returns (f, e1, e2) such that
         auto &parms = context_data.parms();
         auto max_chain_index = parms.coeff_modulus().size();
         auto scheme = parms.scheme();
-
+        
         if (scheme != scheme_type::ckks)
             throw invalid_argument("unsupported scheme");
 

@@ -13,15 +13,25 @@ class PhantomCiphertext {
 private:
 
     size_t chain_index_ = 0; // The index this ciphertext corresponding
+
     size_t size_ = 0; // The number of poly in ciphertext
+
     size_t poly_modulus_degree_ = 0; // The poly degree
+
     size_t coeff_modulus_size_ = 0; // The coeff prime number
+
     double scale_ = 1.0; // The scale this ciphertext corresponding to
+
     uint64_t correction_factor_ = 1; // The correction factor for BGV decryption
+
     size_t noiseScaleDeg_ = 1; // the degree of the scaling factor for the encrypted message
+
     bool is_ntt_form_ = true;
+    
     bool is_asymmetric_ = false;
+
     phantom::util::cuda_auto_ptr<uint64_t> data_;
+
     std::vector<uint8_t> seed_; // only for symmetric encryption
 
 public:

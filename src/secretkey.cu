@@ -461,38 +461,38 @@ PhantomGaloisKey PhantomSecretKey::create_galois_keys(const PhantomContext &cont
 }
 
 // baihuan
-PhantomGaloisKey PhantomSecretKey::create_galois_keys_from_elts(PhantomContext &context, const std::vector<uint32_t> &elts) const
-{
-    phantom::util::cuda_stream_wrapper stream_wrapper;
-    const auto &s = stream_wrapper.get_stream();
-    // const auto &s = phantom::util::global_variables::default_stream->get_stream();
+// PhantomGaloisKey PhantomSecretKey::create_galois_keys_from_elts(PhantomContext &context, const std::vector<uint32_t> &elts) const
+// {
+//     phantom::util::cuda_stream_wrapper stream_wrapper;
+//     const auto &s = stream_wrapper.get_stream();
+//     // const auto &s = phantom::util::global_variables::default_stream->get_stream();
 
-    int log_n = phantom::arith::get_power_of_two(context.poly_degree_);
+//     int log_n = phantom::arith::get_power_of_two(context.poly_degree_);
     
-    context.key_galois_tool_.reset();
-    context.key_galois_tool_ = std::make_unique<phantom::util::PhantomGaloisTool>(elts, log_n, s, false);
+//     context.key_galois_tool_.reset();
+//     context.key_galois_tool_ = std::make_unique<phantom::util::PhantomGaloisTool>(elts, log_n, s, false);
 
-    return create_galois_keys(context);
-}
+//     return create_galois_keys(context);
+// }
 
-PhantomGaloisKey PhantomSecretKey::create_galois_keys_from_steps(PhantomContext &context, const std::vector<int> &steps) const
-{
-    phantom::util::cuda_stream_wrapper stream_wrapper;
-    const auto &s = stream_wrapper.get_stream();
-    // std::cout << "raw stream value: " << std::hex << (size_t)s << std::endl;
-    auto elts = context.key_galois_tool_->get_elts_from_steps(steps);
-    int log_n = phantom::arith::get_power_of_two(context.poly_degree_);
-    // std::cout << "elts = " ;
-    //   for(int i = 0 ; i < elts.size() ; i++){
-    //     std::cout << elts[i] << "  ";
-    //   } 
-    // std::cout << "log_n = " << log_n << std::endl;
-    context.key_galois_tool_.reset();
-    std::cout << "---1111111********" << endl;
-    context.key_galois_tool_ = std::make_unique<phantom::util::PhantomGaloisTool>(elts, log_n, s, false);
-    std::cout << "---2222222********" << endl;
-    return create_galois_keys(context);
-}
+// PhantomGaloisKey PhantomSecretKey::create_galois_keys_from_steps(PhantomContext &context, const std::vector<int> &steps) const
+// {
+//     phantom::util::cuda_stream_wrapper stream_wrapper;
+//     const auto &s = stream_wrapper.get_stream();
+//     // std::cout << "raw stream value: " << std::hex << (size_t)s << std::endl;
+//     auto elts = context.key_galois_tool_->get_elts_from_steps(steps);
+//     int log_n = phantom::arith::get_power_of_two(context.poly_degree_);
+//     // std::cout << "elts = " ;
+//     //   for(int i = 0 ; i < elts.size() ; i++){
+//     //     std::cout << elts[i] << "  ";
+//     //   } 
+//     // std::cout << "log_n = " << log_n << std::endl;
+//     context.key_galois_tool_.reset();
+//     std::cout << "---1111111********" << endl;
+//     context.key_galois_tool_ = std::make_unique<phantom::util::PhantomGaloisTool>(elts, log_n, s, false);
+//     std::cout << "---2222222********" << endl;
+//     return create_galois_keys(context);
+// }
 
 void PhantomSecretKey::encrypt_symmetric(const PhantomContext &context, const PhantomPlaintext &plain,
                                          PhantomCiphertext &cipher) const {

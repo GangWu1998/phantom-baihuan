@@ -92,13 +92,10 @@ int main() {
   std::cout << "Adding Bootstrapping Keys..." << endl;
   vector<int> gal_steps_vector;
   gal_steps_vector.push_back(0);
-  std::cout << "1111111111" << endl;
   for (int i = 0; i < logN - 1; i++) {
     gal_steps_vector.push_back((1 << i));
   }
-  std::cout << "222222222" << endl;
   bootstrapper.addLeftRotKeys_Linear_to_vector_3(gal_steps_vector);
-  std::cout << "333333333" << endl;
   ckks_evaluator.decryptor.create_galois_keys_from_steps(gal_steps_vector, *(ckks_evaluator.galois_keys));
   std::cout << "Galois key generated from steps vector." << endl;
 
@@ -106,14 +103,11 @@ int main() {
 
   std::cout << "Generating Linear Transformation Coefficients..." << endl;
   bootstrapper.generate_LT_coefficient_3();
-
   vector<double> sparse(sparse_slots, 0.0);
   vector<double> input(slot_count, 0.0);
   vector<double> before(slot_count, 0.0);
   vector<double> after(slot_count, 0.0);
-
   random_real(sparse, sparse_slots);
-
   PhantomPlaintext plain;
   PhantomCiphertext cipher;
 
@@ -135,17 +129,14 @@ int main() {
   ckks_evaluator.encoder.decode(plain, before);
 
   auto start = system_clock::now();
-
   PhantomCiphertext rtn;
   bootstrapper.bootstrap_3(rtn, cipher);
-
   duration<double> sec = system_clock::now() - start;
   std::cout << "Bootstrapping took: " << sec.count() << "s" << endl;
   std::cout << "Return cipher level: " << rtn.coeff_modulus_size() << endl;
 
   ckks_evaluator.decryptor.decrypt(rtn, plain);
   ckks_evaluator.encoder.decode(plain, after);
-
   double mean_err = 0;
   for (long i = 0; i < sparse_slots; i++) {
     // if (i < 10) std::cout << before[i] << " <----> " << after[i] << endl;
