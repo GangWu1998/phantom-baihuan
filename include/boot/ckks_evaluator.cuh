@@ -148,7 +148,7 @@ namespace phantom
     {
       phantom::mod_switch_to_inplace(*context, pt, chain_index);
     }
-
+    // baihuan
     inline void rescale_to_next_inplace(PhantomCiphertext &ct)
     {
       phantom::rescale_to_next_inplace(*context, ct);

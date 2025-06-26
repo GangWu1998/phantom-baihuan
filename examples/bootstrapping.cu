@@ -112,12 +112,17 @@ int main() {
   PhantomCiphertext cipher;
 
   // Create input cipher
-  for (size_t i = 0; i < slot_count; i++) {
+  for (size_t i = 0; i < 10; i++) {
     input[i] = sparse[i % sparse_slots];
   }
 
   ckks_evaluator.encoder.encode(input, scale, plain);
   ckks_evaluator.encryptor.encrypt(plain, cipher);
+  ckks_evaluator.decryptor.decrypt(cipher, plain);
+  ckks_evaluator.encoder.decode(plain, before);
+  for (long i = 0; i < 10; i++) {
+    std::cout << before[i] << " <----> " << input[i] << endl;
+  }
 
   // Mod switch to the lowest level
   for (int i = 0; i < total_level; i++) {
@@ -127,10 +132,14 @@ int main() {
   // Decrypt input cipher to obtain the original input
   ckks_evaluator.decryptor.decrypt(cipher, plain);
   ckks_evaluator.encoder.decode(plain, before);
+  for (long i = 0; i < 10; i++) {
+    std::cout << before[i] << " <----> " << input[i] << endl;
+  }
 
   auto start = system_clock::now();
   PhantomCiphertext rtn;
   bootstrapper.bootstrap_3(rtn, cipher);
+
   duration<double> sec = system_clock::now() - start;
   std::cout << "Bootstrapping took: " << sec.count() << "s" << endl;
   std::cout << "Return cipher level: " << rtn.coeff_modulus_size() << endl;
@@ -139,7 +148,7 @@ int main() {
   ckks_evaluator.encoder.decode(plain, after);
   double mean_err = 0;
   for (long i = 0; i < sparse_slots; i++) {
-    // if (i < 10) std::cout << before[i] << " <----> " << after[i] << endl;
+    if (i < 10) std::cout << before[i] << " <----> " << after[i] << endl;
     mean_err += abs(before[i] - after[i]);
   }
   mean_err /= sparse_slots;

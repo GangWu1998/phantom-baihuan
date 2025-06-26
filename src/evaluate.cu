@@ -1544,7 +1544,8 @@ Returns (f, e1, e2) such that
 
     PhantomCiphertext rescale_to_next(const PhantomContext &context, const PhantomCiphertext &encrypted) {
         const auto &s = cudaStreamPerThread;
-
+        size_t n = encrypted.chain_index();
+        std::cout << "rescale_to_next  " << n << std::endl;
         auto &context_data = context.get_context_data(context.get_first_index());
         auto &parms = context_data.parms();
         auto max_chain_index = parms.coeff_modulus().size();

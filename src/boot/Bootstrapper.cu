@@ -449,8 +449,6 @@ void Bootstrapper::addBootKeys_other_keys(PhantomGaloisKey &gal_keys, vector<int
   }
 
   addLeftRotKeys_Linear_to_vector(gal_steps_vector);
-  //	for(auto num : gal_steps_vector) std::cout << num << " ";
-  //	cout << endl;
   ckks->decryptor.create_galois_keys_from_steps(gal_steps_vector, *(ckks->galois_keys));
 }
 void Bootstrapper::addBootKeys_3_other_keys(PhantomGaloisKey &gal_keys, vector<int> &other_keys) {
@@ -1933,21 +1931,7 @@ void Bootstrapper::rotated_bsgs_linear_transform(
   vector<complex<double>> rotatedcoeff;
   rotatedcoeff.reserve(Nh);
   PhantomPlaintext tmpplain;
-
   PhantomCiphertext addtmp1, addtmp2;
-
-  PhantomCiphertext test1;
-  std::cout << cipher.data() << endl;
-  std::cout << cipher.size() << endl;
-  size_t n = cipher.data_ptr().get_n();
-  std::cout << n << endl; 
-  auto t = cipher.data_ptr().get_stream();
-  std::cout << t << endl; 
-  auto t1 = babyct[0].data_ptr().get_stream();
-  std::cout << t1 << endl; 
-  test1 = cipher;
-  auto t2 = test1.data_ptr().get_stream();
-  std::cout << t2 << endl; 
 
   for (int i = 0; i < gs2; i++) {
     if (i == 0) {
@@ -1958,26 +1942,20 @@ void Bootstrapper::rotated_bsgs_linear_transform(
   }
 
   for (int i = 0; i <= giantlast2; i++) {
-    std::cout << "giantbool = false;" << endl;
     giantbool = false;
     if (i != giantlast2) {
       for (int j = 0; j < gs2; j++) {
-        std::cout << "rotation" << endl;
         rotation(coeff_logn, Nh, (-i) * gs2 * basicstep, fftcoeff[i * gs2 + j], rotatedcoeff);
-        std::cout << "multiply_vector_reduced_error" << endl;
         ckks->evaluator.multiply_vector_reduced_error(babyct[j], rotatedcoeff, tmptmpct);
         if (!giantbool) {
           giantct = tmptmpct;
           giantbool = true;
         } else
-          std::cout << "add_inplace_reduced_error" << endl;
           ckks->evaluator.add_inplace_reduced_error(giantct, tmptmpct);
       }
     } else {
       for (int j = 0; j <= totlen - i * gs2; j++) {
-        std::cout << "rotation" << endl;
         rotation(coeff_logn, Nh, (-i) * gs2 * basicstep, fftcoeff[i * gs2 + j], rotatedcoeff);
-        std::cout << "multiply_vector_reduced_error" << endl;
         ckks->evaluator.multiply_vector_reduced_error(babyct[j], rotatedcoeff, tmptmpct);
         if (!giantbool) {
           giantct = tmptmpct;
@@ -1988,7 +1966,6 @@ void Bootstrapper::rotated_bsgs_linear_transform(
     }
 
     if (i != 0) {
-      std::cout << "rotate_vector" << endl;
       ckks->evaluator.rotate_vector(giantct, (Nh + i * gs2 * basicstep) % Nh, *(ckks->galois_keys), tmptmpct);
       if (!tmpctbool) {
         tmpct = tmptmpct;
@@ -2495,10 +2472,8 @@ void Bootstrapper::sflinv_full_3(PhantomCiphertext &rtncipher, PhantomCiphertext
   PhantomCiphertext tmpct;
 
   rotated_bsgs_linear_transform(tmpct, cipher, totlen1, basicstep1, logn, invfftcoeff1[slot_index]);
-  std::cout << "rescale_to_next_inplace" << endl;
   ckks->evaluator.rescale_to_next_inplace(tmpct);
   PhantomCiphertext tmpct2;
-  std::cout << "bsgs_linear_transform" << endl;
   bsgs_linear_transform(tmpct2, tmpct, totlen2, basicstep2, logn, invfftcoeff2[slot_index]);
   ckks->evaluator.rescale_to_next_inplace(tmpct2);
   bsgs_linear_transform(rtncipher, tmpct2, totlen3, basicstep3, logn, invfftcoeff3[slot_index]);
@@ -2634,14 +2609,11 @@ void Bootstrapper::coefftoslot_full_3(PhantomCiphertext &rtncipher1, PhantomCiph
     tmpvec[i] -= iunit;
   }
   PhantomPlaintext tmpplain;
-  std::cout << "encode" << endl;
   ckks->encoder.encode(tmpvec, 1.0, tmpplain);
   ckks->evaluator.mod_switch_to_inplace(tmpplain, tmpct1.chain_index());
   ckks->evaluator.multiply_plain(tmpct1, tmpplain, tmpct2);
-  std::cout << "complex_conjugate" << endl;
   ckks->evaluator.complex_conjugate(tmpct2, *(ckks->galois_keys), tmpct3);
   ckks->evaluator.complex_conjugate(tmpct1, *(ckks->galois_keys), tmpct4);
-  std::cout << "add_reduced_error" << endl;
   ckks->evaluator.add_reduced_error(tmpct1, tmpct4, rtncipher1);
   ckks->evaluator.add_reduced_error(tmpct2, tmpct3, rtncipher2);
 }
@@ -2835,7 +2807,7 @@ __global__ void kernel_modraise_inplace(uint64_t *poly_dest, const uint64_t *pol
     }
   }
 }
-// baihuan
+
 void Bootstrapper::modraise_inplace(PhantomCiphertext &cipher) {
   if (cipher.size() != 2) {
     throw invalid_argument("Ciphertexts of size 2 are supported only!");
@@ -2849,11 +2821,7 @@ void Bootstrapper::modraise_inplace(PhantomCiphertext &cipher) {
     ckks->evaluator.transform_from_ntt_inplace(cipher);
   }
 
-  // const auto &stream = phantom::util::global_variables::default_stream->get_stream();
-  // phantom::util::cuda_stream_wrapper stream_wrapper;
-  // const cudaStream_t &stream = stream_wrapper.get_stream();
   const auto stream = cipher.data_ptr().get_stream();
-  
   auto N = cipher.poly_modulus_degree();
   const auto &context_data = ckks->context->first_context_data();
   const auto &modulus = context_data.parms().coeff_modulus();
@@ -2869,14 +2837,7 @@ void Bootstrapper::modraise_inplace(PhantomCiphertext &cipher) {
   }
 
   // Resize to the full level.
-  auto chain_index = context_data.chain_index();
-  auto &context_data_ = ckks->context->get_context_data(chain_index);
-  auto &parms = context_data.parms();
-  auto &coeff_modulus = parms.coeff_modulus();
-  auto coeff_modulus_size = coeff_modulus.size();
-  auto poly_modulus_degree = parms.poly_modulus_degree();
-  cipher.resize(cipher.size(), coeff_modulus_size, poly_modulus_degree, stream);
-  // cipher.resize(*ckks->context, context_data.chain_index(), stream);
+  cipher.resize(*ckks->context, context_data.chain_index(), stream);
 
   auto ciphertext_size = cipher.size();
   PhantomCiphertext cipher_copy = cipher;
@@ -2892,10 +2853,66 @@ void Bootstrapper::modraise_inplace(PhantomCiphertext &cipher) {
           poly_dest, rns_poly_src, modulus[j].value(), minus_q0[j], N, q0);
     }
   }
+  PhantomPlaintext plain;
+  vector<double> boot_3(ckks->encoder.slot_count(), 0.0);
+  ckks->decryptor.decrypt(cipher, plain);
+  ckks->encoder.decode(plain, boot_3);
+  for (long i = 0; i < 10; i++) {
+  std::cout << "modraise1: " << boot_3[i]  << endl;
+  }
   ckks->evaluator.transform_to_ntt_inplace(cipher);
-  int a = cipher.chain_index();
-  std::cout << "before modraise : " << a << std::endl;
 }
+
+
+// baihuan
+// void Bootstrapper::modraise_inplace(PhantomCiphertext &cipher) {
+//   if (cipher.size() != 2) {
+//     throw invalid_argument("Ciphertexts of size 2 are supported only!");
+//   }
+
+//   if (cipher.coeff_modulus_size() != 1) {
+//     throw invalid_argument("Ciphertexts in the lowest level are supported only!");
+//   }
+
+//   if (cipher.is_ntt_form()) {
+//     ckks->evaluator.transform_from_ntt_inplace(cipher);
+//   }
+
+//   const auto stream = cipher.data_ptr().get_stream();
+  
+//   auto N = cipher.poly_modulus_degree();
+//   const auto &context_data = ckks->context->first_context_data();
+//   const auto &modulus = context_data.parms().coeff_modulus();
+//   auto mod_count = modulus.size();
+//   auto rns_coeff_count = mod_count * N;
+
+//   uint64_t q0 = modulus[0].value();
+//   vector<uint64_t> minus_q0(mod_count);
+//   minus_q0[0] = 0;
+
+//   for (size_t l = 1; l < mod_count; l++) {
+//     minus_q0[l] = modulus[l].value() - q0 % modulus[l].value();
+//   }
+
+//   // Resize to the full level.
+//   cipher.resize(*ckks->context, context_data.chain_index(), stream);
+
+//   auto ciphertext_size = cipher.size();
+//   PhantomCiphertext cipher_copy = cipher;
+
+//   uint64_t gridDimGlb = N / blockDimGlb.x;
+//   for (size_t poly_idx = 0; poly_idx < ciphertext_size; poly_idx++) {
+//     const auto rns_poly_src = cipher_copy.data() + poly_idx * rns_coeff_count;
+//     const auto rns_poly_dest = cipher.data() + poly_idx * rns_coeff_count;
+
+//     for (size_t j = 0; j < mod_count; j++) {
+//       const auto poly_dest = rns_poly_dest + j * N;
+//       kernel_modraise_inplace<<<gridDimGlb, blockDimGlb, 0, stream>>>(
+//           poly_dest, rns_poly_src, modulus[j].value(), minus_q0[j], N, q0);
+//     }
+//   }
+//   ckks->evaluator.transform_to_ntt_inplace(cipher);
+// }
 
 void Bootstrapper::bootstrap_sparse(PhantomCiphertext &rtncipher, PhantomCiphertext &cipher) {
   std::cout << "Modulus Raising..." << endl;
@@ -3131,21 +3148,25 @@ void Bootstrapper::bootstrap_sparse_3(PhantomCiphertext &rtncipher, PhantomCiphe
 void Bootstrapper::bootstrap_full_3(PhantomCiphertext &rtncipher, PhantomCiphertext &cipher) {
   //std::cout << "Modulus Raising..." << endl;
   modraise_inplace(cipher);
-
+  PhantomPlaintext plain;
+  vector<double> boot_3(ckks->encoder.slot_count(), 0.0);
+  ckks->decryptor.decrypt(cipher, plain);
+  ckks->encoder.decode(plain, boot_3);
+  for (long i = 0; i < 10; i++) {
+  std::cout << "modraise: " << boot_3[i]  << endl;
+  }
   const auto modulus = ckks->context->first_context_data().parms().coeff_modulus();
   cipher.set_scale(((double)modulus[0].value()));
- // std::cout << "Coefftoslot...4" << endl;
   PhantomCiphertext rtn1, rtn2;
 
   coefftoslot_full_3(rtn1, rtn2, cipher);
- // std::cout << "Modular reduction..." << endl;
   PhantomCiphertext modrtn1, modrtn2;
   mod_reducer->modular_reduction(modrtn1, rtn1);
   mod_reducer->modular_reduction(modrtn2, rtn2);
- // std::cout << "Slottocoeff..." << endl;
   slottocoeff_full_3(rtncipher, modrtn1, modrtn2);
   rtncipher.set_scale(final_scale);
 }
+
 
 void Bootstrapper::bootstrap_sparse_real_3(PhantomCiphertext &rtncipher, PhantomCiphertext &cipher) {
   std::cout << "Modulus Raising..." << endl;
@@ -3394,11 +3415,25 @@ void Bootstrapper::bootstrap_3(PhantomCiphertext &rtncipher, PhantomCiphertext &
   if (rtncipher.chain_index()) {
     throw invalid_argument("Return cipher should initially be a new ciphertext.");
   }
-  std::cout << "bootstrap_3 can run" << endl;
   initial_scale = cipher.scale();
+  PhantomPlaintext plain;
+  vector<double> boot_3(ckks->encoder.slot_count(), 0.0);
+  ckks->decryptor.decrypt(cipher, plain);
+  ckks->encoder.decode(plain, boot_3);
+  for (long i = 0; i < 10; i++) {
+  std::cout << "before modraise: " << boot_3[i]  << endl;
+  }
   if (logn == logNh){
-    std::cout << "~~~~~~~~~0000~~~~~~" << endl;
-    bootstrap_full_3(rtncipher, cipher);}
+    std::cout << "start modraise" << std::endl;
+    bootstrap_full_3(rtncipher, cipher);
+    PhantomPlaintext plain;
+    vector<double> boot_3(ckks->encoder.slot_count(), 0.0);
+    ckks->decryptor.decrypt(cipher, plain);
+    ckks->encoder.decode(plain, boot_3);
+    for (long i = 0; i < 10; i++) {
+    std::cout << "bootstrap_3: " << boot_3[i]  << endl;
+    }
+  }
   else{
     bootstrap_sparse_3(rtncipher, cipher);}
   cudaStreamSynchronize(cipher.data_ptr().get_stream());

@@ -137,6 +137,7 @@ namespace phantom {
     PhantomCiphertext rescale_to_next(const PhantomContext &context, const PhantomCiphertext &encrypted);
 
     // ciphertext
+    // baihuan
     inline void rescale_to_next_inplace(const PhantomContext &context, PhantomCiphertext &encrypted) {
         encrypted = rescale_to_next(context, encrypted);
     }
